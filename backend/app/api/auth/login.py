@@ -5,28 +5,28 @@ from app.db.models.user import User, UserRole
 from app.schemas.shared.user import UserLogin
 from app.schemas.shared.token import LoginResponse
 from app.schemas.shared.user import UserProfile
-from app.core.security import create_access_token
+from app.core.security import create_user_token  # Updated to use new helper function
 from app.utils.hash import verify_password
 
 router = APIRouter()
 
 @router.post("/creator/login", response_model=LoginResponse)
 async def creator_login(login_data: UserLogin, db: Session = Depends(get_db)):
-    """Login for creators."""
+    """Login for creators with onboarding status in token."""
     return await _login_user(login_data, UserRole.CREATOR, db)
 
 @router.post("/brand/login", response_model=LoginResponse)
 async def brand_login(login_data: UserLogin, db: Session = Depends(get_db)):
-    """Login for brands."""
+    """Login for brands with onboarding status in token."""
     return await _login_user(login_data, UserRole.BRAND, db)
 
 @router.post("/agency/login", response_model=LoginResponse)
 async def agency_login(login_data: UserLogin, db: Session = Depends(get_db)):
-    """Login for agencies."""
+    """Login for agencies with onboarding status in token."""
     return await _login_user(login_data, UserRole.AGENCY, db)
 
 async def _login_user(login_data: UserLogin, expected_role: UserRole, db: Session):
-    """Common login logic for all user types."""
+    """Common login logic for all user types with onboarding status."""
     
     # Find user by email
     user = db.query(User).filter(User.email == login_data.email).first()
@@ -58,13 +58,8 @@ async def _login_user(login_data: UserLogin, expected_role: UserRole, db: Sessio
                 detail="Invalid email or password"
             )
     
-    # Generate JWT token
-    token_data = {
-        "sub": str(user.id),
-        "role": user.role.value,
-        "has_completed_onboarding": user.has_completed_onboarding
-    }
-    access_token = create_access_token(data=token_data)
+    # Generate JWT token with onboarding status
+    access_token = create_user_token(user)
     
     return LoginResponse(
         access_token=access_token,

@@ -19,5 +19,5 @@ class User(Base):
     role = Column(Enum(UserRole), nullable=False)
     is_verified = Column(Boolean, default=False)
     is_google_authenticated = Column(Boolean, default=False)
-    has_completed_onboarding = Column(Boolean, default=False)
+    has_completed_onboarding = Column(Boolean, default=False)  # Added for onboarding tracking
     created_at = Column(DateTime(timezone=True), server_default=func.now())

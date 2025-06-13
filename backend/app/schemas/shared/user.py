@@ -17,13 +17,14 @@ class UserOut(BaseModel):
     role: UserRole
     is_verified: bool
     is_google_authenticated: bool
-    has_completed_onboarding: bool
+    has_completed_onboarding: bool  # Added for onboarding tracking
     created_at: datetime
     
     class Config:
         from_attributes = True
 
 class UserProfile(BaseModel):
+    """Simplified user profile for JWT tokens and basic display"""
     id: str
     email: str
     role: UserRole

@@ -11,7 +11,7 @@ from app.db.models.user import User, UserRole
 security = HTTPBearer()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Create JWT access token."""
+    """Create JWT access token with user data and onboarding status."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -81,3 +81,16 @@ async def get_current_agency_user(current_user: User = Depends(get_current_user)
             detail="Access denied. Agency role required."
         )
     return current_user
+
+def create_token_with_onboarding_status(user: User) -> str:
+    """
+    Create JWT token with updated onboarding status.
+    Called after profile creation to update the token claims.
+    """
+    token_data = {
+        "sub": str(user.id),
+        "role": user.role.value,
+        "has_completed_onboarding": user.has_completed_onboarding,
+        "email": user.email
+    }
+    return create_access_token(data=token_data)
