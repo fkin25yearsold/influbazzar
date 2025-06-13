@@ -7,7 +7,7 @@ from app.db.models.otp import UserOTP
 from app.schemas.shared.otp import OTPVerification
 from app.schemas.shared.token import LoginResponse
 from app.schemas.shared.user import UserProfile
-from app.core.security import create_user_token  # Updated to use new helper function
+from app.core.security import create_token_with_onboarding_status  # Updated to use new helper function
 from app.utils.email import send_welcome_email
 
 router = APIRouter()
@@ -49,7 +49,7 @@ async def verify_otp(otp_data: OTPVerification, db: Session = Depends(get_db)):
     send_welcome_email(user.email, user.role.value)
     
     # Generate JWT token with onboarding status
-    access_token = create_user_token(user)
+    access_token = create_token_with_onboarding_status(user)
     
     return LoginResponse(
         access_token=access_token,

@@ -5,7 +5,7 @@ from app.db.models.user import User, UserRole
 from app.schemas.shared.user import UserLogin
 from app.schemas.shared.token import LoginResponse
 from app.schemas.shared.user import UserProfile
-from app.core.security import create_user_token  # Updated to use new helper function
+from app.core.security import create_token_with_onboarding_status  # Updated to use new helper function
 from app.utils.hash import verify_password
 
 router = APIRouter()
@@ -59,7 +59,7 @@ async def _login_user(login_data: UserLogin, expected_role: UserRole, db: Sessio
             )
     
     # Generate JWT token with onboarding status
-    access_token = create_user_token(user)
+    access_token = create_token_with_onboarding_status(user)
     
     return LoginResponse(
         access_token=access_token,
